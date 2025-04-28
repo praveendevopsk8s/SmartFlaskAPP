@@ -50,7 +50,7 @@
 				echo 'Docker Building Stage'
 				script {
 					def img = "${env.JOB_NAME}:${env.BUILD_ID}"
-					docker.build(img).run('-d -p 5010:5000')
+					docker.build(img).run('-d -p 5011:5000')
         }
     }
 }		
