@@ -1,4 +1,4 @@
-def container = ''
+def container  // Declare container globally to access in post block
 
 pipeline {
     agent any
@@ -25,9 +25,8 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 echo "Running Unit Tests"
-                sh '''
+                sh '''#!/bin/bash
                     python3 -m venv myenv
-                    source myenv/bin/activate
                     export PYTHONPATH=$PYTHONPATH:$(pwd)
                     pytest --cov=main utests --junitxml=./xmlReport/output.xml
                     python3 -m coverage xml
@@ -55,13 +54,14 @@ pipeline {
                 script {
                     def img = "${env.JOB_NAME}:${env.BUILD_ID}"
                     container = docker.build(img).run('-d -p 5011:5000')
-                  
+                    sleep(10)
                 }
             }
             post {
                 always {
                     script {
                         if (container) {
+                            echo "Stopping Docker container..."
                             container.stop()
                         }
                     }
