@@ -10,7 +10,7 @@
 
 This application is written using Python 3.10.
 
-## Running the application
+## Running the application ##
 DirPath/SmartFlaskAPP>python run.py
 
 ## Unit Testing and Code Coverage
