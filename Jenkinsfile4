@@ -1,0 +1,87 @@
+pipeline {
+    agent any
+
+    environment {
+        registry = "praveendevopsk8s/my-smart-app"
+        img = "${registry}:${BUILD_ID}"
+        registryCredentials = 'docker-jenkins'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/praveendevopsk8s/SmartFlaskAPP.git'
+                sh 'ls -l'
+            }
+        }
+
+        stage('Prepare Environment') {
+            steps {
+                sh 'bash ./jenkinsscript.sh'
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                sh '''#!/bin/bash
+                    python3 -m venv myenv
+                    export PYTHONPATH=$PYTHONPATH:$(pwd)
+                    pytest --cov=main utests --junitxml=./xmlReport/output.xml
+                    python3 -m coverage xml
+                '''
+            }
+        }
+
+        stage('Publish Junit Report') {
+            steps {
+                junit skipMarkingBuildUnstable: true, testResults: 'xmlReport/output.xml'
+            }
+        }
+
+        stage('Publish Code Coverage') {
+            steps {
+                cobertura coberturaReportFile: 'coverage.xml'
+            }
+        }
+
+        stage('Docker Building') {
+            steps {
+                script {
+                    dockerImage = docker.build("${img}")
+                }
+            }
+        }
+
+        stage('Release Stage') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: registryCredentials) {
+                        dockerImage.push()
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Pull the Docker Image') {
+            steps {
+                sh "docker pull praveendevopsk8s/my-smart-app:1"
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                script {
+                    env.CONTAINER_ID = sh(
+                        script: "docker run -d -p 5010:5000 praveendevopsk8s/my-smart-app:1",
+                        returnStdout: true
+                    ).trim()
+                    echo "Container ID: ${env.CONTAINER_ID}"
+                }
+            }
+        }
+    }
+
+    
+    }
+
