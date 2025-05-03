@@ -82,8 +82,9 @@ pipeline {
         }
         stage('Stop the Container') {
             steps {
-                script {
-                    sh 'docker stop env.CONTAINER_ID || true'
+                script {                    
+					sh "docker stop ${env.CONTAINER_ID} || true"
+
                 }
             }
         }		
