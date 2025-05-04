@@ -21,4 +21,4 @@ source myenv/bin/activate
 echo '#### Installing requirements ####'
 pip install -r ./requirements.txt
 pip install pytest-cov
-
+echo '#### Installing Pytest is done ####'
