@@ -23,9 +23,7 @@ pipeline {
 
         stage('Run Unit Tests') {
             steps {
-                sh '''#!/bin/bash
-                    python3 -m venv myenv
-                    export PYTHONPATH=$PYTHONPATH:$(pwd)
+                sh '''#!/bin/bash                   
                     pytest --cov=main utests --junitxml=./xmlReport/output.xml
                     python3 -m coverage xml
                 '''
