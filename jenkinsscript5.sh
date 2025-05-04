@@ -1,19 +1,34 @@
 #!/bin/bash
 
-python3 -m venv myenv
-source myenv/bin/activate
-echo '#### Checking python ####'
-which python3
+# Load pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+
+# Set Python version
+pyenv global 3.10.12
+
+# Show current versions
+pyenv versions
 python3 -V
 
-echo '#### Install requirements ####'
-pip install --no-cache-dir -r ./requirements.txt
+# Create and activate virtual environment
+python3 -m venv myenv
+source myenv/bin/activate
+
+# Install dependencies
+echo '#### Installing requirements ####'
+pip install -r ./requirements.txt
 pip install pytest-cov
 
-echo '#### Run tests & coverage ####'
+# Run tests
+echo '#### Running tests ####'
+export PYTHONPATH=$PYTHONPATH:$(pwd)
 pytest --cov=main utests --junitxml=./xmlReport/output.xml
 python -m coverage xml
 
-echo '### deactivate virtual environment ###'
+# Deactivate and reset pyenv
+echo '### Deactivating virtual environment ###'
 deactivate
-echo '### done jenkins script ###'
+pyenv global system
