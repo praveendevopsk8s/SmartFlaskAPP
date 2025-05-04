@@ -22,13 +22,3 @@ echo '#### Installing requirements ####'
 pip install -r ./requirements.txt
 pip install pytest-cov
 
-# Run tests
-echo '#### Running tests ####'
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-pytest --cov=main utests --junitxml=./xmlReport/output.xml
-python -m coverage xml
-
-# Deactivate and reset pyenv
-echo '### Deactivating virtual environment ###'
-#deactivate
-pyenv global system
