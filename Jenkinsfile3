@@ -1,70 +1,73 @@
-def container  // Declare container globally to access in post block
-
 pipeline {
     agent any
 
     environment {
-        img = "${env.JOB_NAME}:${env.BUILD_ID}"
+        registry = "praveendevopsk8s/my-smart-app"
+        img = "${registry}:${BUILD_ID}"
+        registryCredentials = 'docker-jenkins'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                echo "Checkout"
+                git branch: 'main', url: 'https://github.com/praveendevopsk8s/SmartFlaskAPP.git'
                 sh 'ls -l'
-            }
-        }
-
-        stage('Prepare Environment') {
-            steps {
-                echo "Prepare Environment"
-                sh 'bash ./jenkinsscript.sh'
             }
         }
 
         stage('Run Unit Tests') {
             steps {
-                echo "Running Unit Tests"
-                sh '''#!/bin/bash
-                    python3 -m venv myenv
-                    export PYTHONPATH=$PYTHONPATH:$(pwd)
-                    pytest --cov=main utests --junitxml=./xmlReport/output.xml
-                    python3 -m coverage xml
-                '''
+                sh 'bash ./jenkinsscript.sh'
             }
         }
 
-        stage('Publish Junit report') {
+        stage('Publish Junit Report') {
             steps {
-                echo "Publish Junit Report"
                 junit skipMarkingBuildUnstable: true, testResults: 'xmlReport/output.xml'
             }
         }
 
         stage('Publish Code Coverage') {
             steps {
-                echo "Publish Code Coverage"
                 cobertura coberturaReportFile: 'coverage.xml'
             }
         }
 
-        stage('Docker Building') {
+        stage('Docker Build') {
             steps {
-                echo 'Docker Building Stage'
                 script {
-                    def img = "${env.JOB_NAME}:${env.BUILD_ID}"
-                    container = docker.build(img).run('-d -p 5011:5000')
-                    sleep(30)
+                    dockerImage = docker.build("${img}")
                 }
             }
-            post {
-                always {
-                    script {
-                        if (container) {
-                            echo "Stopping Docker container..."
-                            container.stop()
-                        }
+        }
+
+        stage('Docker Push') {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: registryCredentials) {
+                        dockerImage.push()
+                        dockerImage.push('latest')
                     }
+                }
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                script {
+                    env.CONTAINER_ID = sh(
+                        script: "docker run -d -p 5010:5000 ${img}",
+                        returnStdout: true
+                    ).trim()
+                    echo "Container ID: ${env.CONTAINER_ID}"
+                }
+            }
+        }
+
+        stage('Stop Container') {
+            steps {
+                script {
+                    sh "docker stop ${env.CONTAINER_ID} || true"
                 }
             }
         }
