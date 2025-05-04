@@ -30,5 +30,5 @@ python -m coverage xml
 
 # Deactivate and reset pyenv
 echo '### Deactivating virtual environment ###'
-deactivate
+#deactivate
 pyenv global system
