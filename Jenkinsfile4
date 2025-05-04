@@ -17,7 +17,7 @@ pipeline {
 
         stage('Prepare Environment') {
             steps {
-                sh 'bash ./jenkinsscript.sh'
+                sh 'bash ./jenkinsscript5.sh'
             }
         }
 
