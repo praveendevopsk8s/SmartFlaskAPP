@@ -1,55 +1,36 @@
 #!/bin/bash
 
-# Fail fast if any command fails
-set -e
+set -e  # Exit on any error
 
-# Install dependencies for pyenv
+echo "### Checking Python and pip dependencies ###"
+# Ensure required packages are installed
 sudo apt-get update
-sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
-libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
-libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev git
+sudo apt-get install -y python3 python3-venv python3-pip curl
 
-# Install pyenv if not already installed
-if [ ! -d "$HOME/.pyenv" ]; then
-    echo "Installing pyenv..."
-    curl https://pyenv.run | bash
-else
-    echo "pyenv already installed"
-fi
-
-# Export pyenv paths
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv virtualenv-init -)"
-
-# Install Python version (if not installed)
-PYTHON_VERSION="3.10.12"
-if ! pyenv versions --bare | grep -q "$PYTHON_VERSION"; then
-    echo "Installing Python $PYTHON_VERSION via pyenv..."
-    pyenv install $PYTHON_VERSION
-fi
-
-# Set Python version
-pyenv global $PYTHON_VERSION
-
-# Show current versions
+# Set Python version (optional if using system default)
 python3 -V
-pip3 -V
 
-# Create and activate virtual environment
+# Create virtual environment
+echo "### Creating virtual environment ###"
 python3 -m venv myenv
+
+# Bootstrap pip manually if missing
+if [ ! -f "myenv/bin/pip" ]; then
+  echo "pip not found in virtual environment, installing manually..."
+  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+  myenv/bin/python get-pip.py
+fi
+
+# Activate virtual environment
+echo "### Activating virtual environment ###"
 source myenv/bin/activate
 
-# Install pip if not available
-if ! command -v pip &> /dev/null; then
-    echo "pip not found, installing pip..."
-    python3 -m ensurepip --upgrade
-fi
+# Confirm pip version
+pip --version
 
 # Install dependencies
-echo '#### Installing requirements ####'
-pip install --upgrade pip
-pip install -r ./requirements.txt
+echo "### Installing requirements ###"
+pip install -r requirements.txt
 pip install pytest-cov
-echo '#### Installing Pytest is done ####'
+
+echo "### All installations complete ###"
