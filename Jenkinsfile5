@@ -24,6 +24,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
         	sh '''
+		 #!/bin/bash
             	source venv/bin/activate
             	pytest --cov=main utests --junitxml=./xmlReport/output.xml
             	python -m coverage xmlcoverage xml
