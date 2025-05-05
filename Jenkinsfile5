@@ -26,7 +26,7 @@ pipeline {
         	sh '''
             	source venv/bin/activate
             	pytest --cov=main utests --junitxml=./xmlReport/output.xml
-            	coverage xml
+            	python -m coverage xmlcoverage xml
         	'''
             }
         }
