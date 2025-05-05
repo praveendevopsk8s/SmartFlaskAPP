@@ -55,11 +55,7 @@ stage('Run Unit Tests') {
 
 
 
-        stage('Pull the Docker Image') {
-            steps {
-                sh "docker pull praveendevopsk8s/my-smart-app:1"
-            }
-        }
+
 
         stage('Run Container') {
             steps {
