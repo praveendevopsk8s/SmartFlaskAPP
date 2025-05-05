@@ -21,16 +21,17 @@ pipeline {
             }
         }
 
-        stage('Run Unit Tests') {
-            steps {
-        	sh '''
-		 #!/bin/bash
-            	. venv/bin/activate
-            	pytest --cov=main utests --junitxml=./xmlReport/output.xml
-            	python -m coverage xmlcoverage xml
-        	'''
-            }
-        }
+stage('Run Unit Tests') {
+    steps {
+        sh '''
+            #!/bin/bash
+            set -e
+            myenv/bin/python -m pytest --cov=main utests --junitxml=./xmlReport/output.xml
+            myenv/bin/python -m coverage xml -o coverage.xml
+        '''
+    }
+}
+
 
         stage('Publish Junit Report') {
             steps {
