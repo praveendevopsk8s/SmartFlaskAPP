@@ -53,16 +53,7 @@ stage('Run Unit Tests') {
             }
         }
 
-        stage('Release Stage') {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: registryCredentials) {
-                        dockerImage.push()
-                        dockerImage.push('latest')
-                    }
-                }
-            }
-        }
+
 
         stage('Pull the Docker Image') {
             steps {
@@ -94,4 +85,3 @@ stage('Run Unit Tests') {
 
     
     }
-
