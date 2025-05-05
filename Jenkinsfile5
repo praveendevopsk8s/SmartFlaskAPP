@@ -23,10 +23,11 @@ pipeline {
 
         stage('Run Unit Tests') {
             steps {
-                sh '''#!/bin/bash                   
-                    pytest --cov=main utests --junitxml=./xmlReport/output.xml
-                    python3 -m coverage xml
-                '''
+        	sh '''
+            	source venv/bin/activate
+            	pytest --cov=main utests --junitxml=./xmlReport/output.xml
+            	coverage xml
+        	'''
             }
         }
 
