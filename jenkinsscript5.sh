@@ -3,8 +3,8 @@
 set -e  # Exit on any error
 
 echo "### Updating and installing system dependencies ###"
-su apt-get update
-su apt-get install -y python3 python3-venv python3-pip curl
+sudo apt-get update
+sudo apt-get install -y python3 python3-venv python3-pip curl
 
 echo "### Python version check ###"
 python3 -V
